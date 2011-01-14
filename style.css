@@ -1,0 +1,16 @@
+div#hd{overflow:hidden;padding:10px; margin-top:20px}
+div#bd{background-color:#ffffff;overflow:hidden}
+div#ft{font-size:.9em;padding:20px 0;text-align:center}
+.wrapper{padding:10px;}
+#top{ height: 20px;}
+#loading{margin:0 auto; width:100px; display:none; background-color:#FFF1A8; font-weight:700; text-align:center; padding:2px}
+ul.filterlist{margin:0 0 15px 0;padding:0}
+ul.filterlist li {border-bottom:1px solid #eee;list-style-type:none;margin-bottom:0;margin-left:0;padding-bottom:5px; list-style-position:inside;}
+.total-result{color:#666; margin-bottom:15px;font-size:.9em}
+.items-wrapper{margin-bottom:30px; overflow:hidden;}
+.item-title{margin-bottom:0}
+.item-url{color:#0E7649}
+.item-img-wrapper{float:right;width:100px;margin: 0 0 0 10px;}
+.item-img{max-width:100px; max-height:100px; }
+#pagination{margin:10px 0 20px}
+optgroup{ font-weight:bold; }

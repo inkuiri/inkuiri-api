@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Inkuiri API</title>                                        
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset-fonts-grids/reset-fonts-grids.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="JSON.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#loading").hide();
+	$("#search").submit(function(e){
+		if($("#querysearch").val() !=""){
+			submit_search();
+		}
+		e.preventDefault()
+	});
+});
+
+function submit_search(thepage, thefilter, thesort, theorder)
+{
+	var querysearch = $("#querysearch").val();
+	var loading = $("#loading");
+	var resultdiv = $("#result");
+	var filterdiv = $("#filters");
+	var limitsearch = $("#limit").val();
+	var relateddiv = $("#related");
+
+	var stime = new Date();
+	var startTime = stime.getTime();
+	
+	if (!thepage){
+		var thepage = 0;
+	}
+	
+	if (!thefilter){
+		var thefilter = "";
+	}
+	
+	if (!thesort){
+		var thesort = "";
+	}
+	
+	if (!theorder){
+		var theorder = "";
+	}
+	
+	var thedata = "method=search.item&query="+querysearch
+	+"&limit="+limitsearch
+	+"&page="+thepage
+	+"&filter="+thefilter
+	+"&sort="+thesort
+	+"&order="+theorder;
+	
+	loading.show();
+	relateddiv.hide();
+	
+	$.ajax({
+	    type: "POST",
+	    dataType: "json",
+	    url: "http://api.inkuiri.com/services/json",
+	    data: thedata,
+	    success: function(return_data) {
+				
+				var etime = new Date();
+				var endTime = etime.getTime();
+				var execTime = ((endTime - startTime)/1000) +" seconds";
+				
+				var htmlresults = "";
+				var htmlfilters = "";
+				var page = return_data.request.page;
+				var total_result = return_data.total;
+				
+				if (thefilter) {
+					// do nothing
+				} else {
+					thefilter = "";
+				}
+
+				if (total_result > 0)
+				{
+	        htmlresults += "<div class=\"total-result\">About "+return_data.total+" results in "+execTime+".</div>";
+					
+					for (var i in return_data.items)
+	        {
+						htmlresults += "<div class=\"items-wrapper\">";
+						htmlresults += "<h3 class=\"item-title\"><a href=\""+return_data.items[i].url +"\" target=\"_blank\">"+ return_data.items[i].title +"</a></h3>";
+						if ((return_data.items[i].snippet == '') || (return_data.items[i].snippet =="null")){
+							var snippet ="";
+						}
+						else{
+							var snippet = JSON.decode(return_data.items[i].snippet)+"<br>";
+						};
+						htmlresults += snippet;
+						htmlresults += return_data.items[i].themed_price+"<br>";
+						htmlresults += "<span class=\"item-url\">"+return_data.items[i].url+"</span><br>";
+						htmlresults += "</div>";
+	        }
+					
+					
+						var limit = return_data.request.limit;
+						var total = return_data.total;
+						var maxpage = Math.ceil(total / limit) - 1;
+						var htmlpage = "";
+						
+						if (page > 0) {
+							npage = parseInt(page)-1;
+							htmlpage += "<a href='#' onclick='submit_search(0, \""+thefilter+"\", \""+thesort+"\", \""+theorder+"\")'>« first</a> &nbsp;&nbsp;";
+							htmlpage += "<a href='#' onclick='submit_search("+npage+", \""+thefilter+"\", \""+thesort+"\", \""+theorder+"\")'>‹ previous</a> &nbsp;&nbsp;";
+						}
+						
+						if (page > 5) { var n = page - 4; }
+						else { var n = 0; }
+						if (n + 8 <= maxpage) { maxpaging = n+8; }
+						else { maxpaging = maxpage; }
+						for (n;n<=maxpaging;n++) {
+							if (n == page) {
+								npage = n+1;
+								htmlpage += "<span style=\"font-weight:bold\">"+npage+"</span>";
+								htmlpage += "&nbsp; &nbsp;";
+							} else {
+								npage = n+1;
+								htmlpage += "<a href='#' onclick='submit_search("+n+", \""+thefilter+"\", \""+thesort+"\", \""+theorder+"\")'>"+npage+"</a>";
+								htmlpage += "&nbsp; &nbsp;";
+							}
+						}
+						
+						if (page < maxpage) {
+							npage = parseInt(page)+1;
+							htmlpage += "<a href='#' onclick='submit_search("+npage+", \""+thefilter+"\", \""+thesort+"\", \""+theorder+"\")'>next ›</a> &nbsp;&nbsp;";
+							htmlpage += "<a href='#' onclick='submit_search("+maxpage+", \""+thefilter+"\", \""+thesort+"\", \""+theorder+"\")'>last »</a> &nbsp;&nbsp;";
+						}
+						$("#pagination").html(htmlpage);
+					
+				} else {
+					htmlresults +="<p>No data found</p>";
+				}
+				
+        resultdiv.html(htmlresults);
+				resultdiv.fadeIn(500);
+				loading.hide();
+	    }
+	});
+}
+</script>
+</head>
+<body>
+<div id="doc2" class="yui-t2">
+	<div id="top">
+		<div id="loading">Loading...</div>
+	</div>
+	
+	<a href=""><img src="inkuiri_logo.gif" width="180"></a> 
+  <form id="search" name="searchform" class="searchform" method="post">
+		<input type="text" id="querysearch" name="search" class="title" value="mobil bekas" />
+		<select id="limit">
+			<option value="10">10 results</option>
+			<option value="15">15 results</option>
+			<option value="20">20 results</option>
+		</select>
+		<input type="submit" value="search" class="awesome">
+	</form>
+	
+
+	<div id="result"></div>
+	<div id="pagination"></div>
+
+</div>
+</body>
+</html>
